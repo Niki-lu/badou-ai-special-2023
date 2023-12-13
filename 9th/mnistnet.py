@@ -53,6 +53,7 @@ class Model:
                 total+=labels.size(0)
                 correct+=(numbers==labels).sum().item()
         print('Accuracy is : %d %%'%(100*correct/total))
+        print('test')
 
 def mnist_load_data():
     transforms=transforms.Compose(
