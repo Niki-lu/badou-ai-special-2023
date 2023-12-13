@@ -1,0 +1,2 @@
+simplenet.py 使用tensorflow构建简单的全链接神经网络，网络层数为3层实现手写数字检测
+mnistnet.py 使用pytorch实现手写数字检测
