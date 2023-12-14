@@ -2,29 +2,32 @@ import tensorflow as tf
 import numpy as np 
 import matplotlib.pyplot as plt 
 
-x_data=np.linspace(-0.5,0.5,200)[:,np.newaxis]
+x_data=np.linspace(-0.5,0.5,400)[:,np.newaxis]
 noise=np.random.normal(0.,0.03,x_data.shape)
-y_data=np.pow(x_data,3)+noise
+y_data=np.power(x_data,3)+noise
 
 x=tf.placeholder(tf.float32,[None,1])
 y=tf.placeholder(tf.float32,[None,1])
 
-w1=tf.Variable(tf.random_normal([1,20]))
-b1=tf.Variable(tf.zeros([1,20]))
+w1=tf.Variable(tf.random_normal([1,40]))
+b1=tf.Variable(tf.zeros([1,40]))
 wb1=tf.matmul(x,w1)+b1
-wbs1=tf.nn.sigmoid(wb1)
+wbs1=tf.nn.tanh(wb1)
 
-w2=tf.Variable(tf.random_normal([20,1]))
-b2=tf.Variable(tf.zeros([20,1]))
+w2=tf.Variable(tf.random_normal([40,1]))
+b2=tf.Variable(tf.zeros([1,1]))
 wb2=tf.matmul(wbs1,w2)+b2
-result=tf.nn.sigmoid(wb2)
+result=tf.nn.tanh(wb2)
 
-loss=tf.nn.CrossEntropyLoss(y-result)
+
+
+loss=tf.reduce_mean(tf.square(y-result))
 train=tf.train.GradientDescentOptimizer(0.01).minimize(loss)
 
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
-    for i in range(2000):
+    for i in range(20000):
+        print(i)
         sess.run(train,feed_dict={x:x_data,y:y_data})
     result=sess.run(result,feed_dict={x:x_data})
 
