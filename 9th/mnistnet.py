@@ -21,7 +21,7 @@ class Model:
     def create_optimizer(self,optimizer,**rest):
         support_optimizer={
             "SGD":torch.optim.SGD(self.net.parameters(),lr=0.1,**rest),
-            "RMSprop":torch.optim.RMSprop(self.net.parameters(),lr=0.01,**rest),
+            "RMSProp":torch.optim.RMSprop(self.net.parameters(),lr=0.001,**rest),
             "Adam":torch.optim.Adam(self.net.parameters(),lr=0.01,**rest)
         }
         return support_optimizer[optimizer]
@@ -33,7 +33,7 @@ class Model:
                 self.optimizer.zero_grad()
                 inputs,labels=data
                 outputs=self.net(inputs)
-                loss=self.cost(labels,outputs)
+                loss=self.cost(outputs,labels)
                 loss.backward()
                 self.optimizer.step()
 
@@ -53,18 +53,17 @@ class Model:
                 total+=labels.size(0)
                 correct+=(numbers==labels).sum().item()
         print('Accuracy is : %d %%'%(100*correct/total))
-        print('test')
 
 def mnist_load_data():
-    transforms=transforms.Compose(
+    transform=transforms.Compose(
         [transforms.ToTensor(),
          transforms.Normalize([0,],[1,])]
     )
     
-    trainset=torchvision.datasets.MNIST(root='./data',train=True,download=True,transform=transforms)
+    trainset=torchvision.datasets.MNIST(root='./data',train=True,download=True,transform=transform)
     trainloader=torch.utils.data.DataLoader(trainset,batch_size=32,shuffle=True,num_workers=4)
-    testset=torchvision.datasets.MNIST(root='./data',train=False,transform=transforms,download=True)
-    testloader=torch.utils.data.DataLoader(testset,batch_size=32,shuffle=True,num_works=4)
+    testset=torchvision.datasets.MNIST(root='./data',train=False,transform=transform,download=True)
+    testloader=torch.utils.data.DataLoader(testset,batch_size=32,shuffle=True,num_workers=4)
     return trainloader,testloader
 
 class MnistNet(nn.Module):
@@ -76,14 +75,14 @@ class MnistNet(nn.Module):
         
     def forward(self,x):
         x=x.view(-1,28*28)
-        x=function.Relu(self.fc1(x))
-        x=function.Relu(self.fc2(x))
-        x=function.softmax(self.fc3(x),dim=1)
+        x=functional.relu(self.fc1(x))
+        x=functional.relu(self.fc2(x))
+        x=functional.softmax(self.fc3(x),dim=1)
         return x
     
 if __name__=='__main__':
     net=MnistNet()
-    model=Model(net,'CROSS_ENTROPY','RMSP')
+    model=Model(net,'CROSS_ENTROPY','RMSProp')
     trainloader,testloader=mnist_load_data()
     model.train(trainloader)
     model.evaluate(testloader)
